@@ -1,0 +1,20 @@
+<!-- src/app/components/dashboard/dashboard.component.html -->
+
+<h2>Wind Forecast</h2>
+<button (click)="toggleUnit()">Switch to {{ unit === 'mph' ? 'knots' : 'mph' }}</button>
+
+<div *ngIf="windForecast; else noWind">
+  <p>Speed: {{ getWindSpeedDisplay() }}</p>
+  <p>Direction: {{ windForecast.direction }}</p>
+</div>
+
+<ng-template #noWind>
+  <p>No wind forecast available.</p>
+</ng-template>
+
+<h2>Tide Predictions</h2>
+<ul>
+  <li *ngFor="let tide of tideData?.predictions">
+    {{ tide.t }} - {{ tide.v }} ft
+  </li>
+</ul>

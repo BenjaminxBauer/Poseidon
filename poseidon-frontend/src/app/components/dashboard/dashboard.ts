@@ -1,19 +1,89 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { NoaaDataService } from '../../services/noaa-data';
+import { provideCharts } from 'ng2-charts';
+import { BaseChartDirective } from 'ng2-charts';
+import {
+  ChartConfiguration,
+  Chart as ChartJS,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+
+ChartJS.register(
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+interface TidePrediction {
+    t: string;
+    v: string;
+}
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  providers: [provideCharts()],
+  imports: [CommonModule, BaseChartDirective],
   templateUrl: './dashboard.html'
 })
 export class DashboardComponent implements OnInit {
-  windData: any;
-  tideData: any;
   isBrowser: boolean;
+  windData: any;
   unit: 'mph' | 'knots' = 'mph'; // default to mph
   windForecast: { speed: string; direction: string } | null = null;
+  tideLabels: string[] = [];
+  tideData: number[] = [];
+
+  tideChartConfig: ChartConfiguration<'line'> = {
+    type: 'line',
+    data: {
+      labels: this.tideLabels,
+      datasets: [
+        {
+          label: 'Tide Level (ft)',
+          data: this.tideData,
+          fill: true,
+          borderColor: 'blue',
+          backgroundColor: 'rgba(135,206,250,0.4)', // light blue fill
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          type: 'category',
+          title: {
+            display: true,
+            text: 'Time'
+          }
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Water Level (ft)'
+          }
+        }
+      }
+    }
+  };
 
   constructor(
     private noaaService: NoaaDataService,
@@ -33,7 +103,15 @@ export class DashboardComponent implements OnInit {
         };
     }
   });
-      this.noaaService.getTidePredictions().subscribe(data => this.tideData = data);
+      this.noaaService.getTidePredictions().subscribe(data => {
+        console.log('Raw tide data:', data);
+        this.tideLabels = data.predictions.map((p: TidePrediction) => p.t);
+        this.tideData = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
+        console.log('Labels:', this.tideLabels);
+        console.log('Data:', this.tideData);
+        this.tideChartConfig.data.labels = this.tideLabels;
+        this.tideChartConfig.data.datasets[0].data = this.tideData;
+    });
     }
   }
 

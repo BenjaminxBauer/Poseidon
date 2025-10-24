@@ -13,7 +13,7 @@ export class NoaaDataService {
   constructor(private http: HttpClient) {}
 
   getHourlyForecast(): Observable<any> {
-  const url = 'https://api.weather.gov/gridpoints/BOX/65,45/forecast/hourly';
+  const url = 'https://api.weather.gov/gridpoints/BOX/95,66/forecast/hourly';
   return this.http.get(url);
 }
 

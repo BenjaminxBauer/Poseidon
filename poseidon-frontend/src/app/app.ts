@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
-import { DashboardComponent } from './components/dashboard/dashboard';
+import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [DashboardComponent],
-  template: `<app-dashboard />`
+  imports: [RouterOutlet],
+  templateUrl: './app.html',
+  styleUrl: './app.css'
 })
-export class App {}
+export class App {
+  protected readonly title = signal('poseidon-frontend');
+}

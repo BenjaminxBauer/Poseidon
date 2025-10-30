@@ -1,6 +1,5 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { NoaaDataService } from '../../services/noaa-data';
+import { Component, OnInit, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { provideCharts } from 'ng2-charts';
 import { BaseChartDirective } from 'ng2-charts';
 import {
@@ -16,6 +15,7 @@ import {
   Legend,
   Filler
 } from 'chart.js';
+import { NoaaDataService } from '../services/noaa-data.service.ts';
 
 ChartJS.register(
   LineController,
@@ -42,7 +42,6 @@ interface TidePrediction {
   templateUrl: './dashboard.html'
 })
 export class DashboardComponent implements OnInit {
-  isBrowser: boolean;
   windData: any;
   unit: 'mph' | 'knots' = 'mph'; // default to mph
   windForecast: { speed: string; direction: string } | null = null;
@@ -85,34 +84,27 @@ export class DashboardComponent implements OnInit {
     }
   };
 
-  constructor(
-    private noaaService: NoaaDataService,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    this.isBrowser = isPlatformBrowser(this.platformId);
-  }
+  constructor(private noaaService: NoaaDataService) {}
 
   ngOnInit(): void {
-    if (this.isBrowser) {
-      this.noaaService.getHourlyForecast().subscribe(data => {
-        const firstPeriod = data?.properties?.periods?.[0];
-        if (firstPeriod) {
-          this.windForecast = {
-            speed: firstPeriod.windSpeed,
-            direction: firstPeriod.windDirection
+    this.noaaService.getHourlyForecast().subscribe(data => {
+      const firstPeriod = data?.properties?.periods?.[0];
+      if (firstPeriod) {
+        this.windForecast = {
+          speed: firstPeriod.windSpeed,
+          direction: firstPeriod.windDirection
         };
-    }
-  });
-      this.noaaService.getTidePredictions().subscribe(data => {
-        console.log('Raw tide data:', data);
-        this.tideLabels = data.predictions.map((p: TidePrediction) => p.t);
-        this.tideData = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
-        console.log('Labels:', this.tideLabels);
-        console.log('Data:', this.tideData);
-        this.tideChartConfig.data.labels = this.tideLabels;
-        this.tideChartConfig.data.datasets[0].data = this.tideData;
+      }
     });
-    }
+    this.noaaService.getTidePredictions().subscribe(data => {
+      console.log('Raw tide data:', data);
+      this.tideLabels = data.predictions.map((p: TidePrediction) => p.t);
+      this.tideData = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
+      console.log('Labels:', this.tideLabels);
+      console.log('Data:', this.tideData);
+      this.tideChartConfig.data.labels = this.tideLabels;
+      this.tideChartConfig.data.datasets[0].data = this.tideData;
+    });
   }
 
   toggleUnit(): void {

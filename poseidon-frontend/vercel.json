@@ -1,8 +1,0 @@
-{
-  "build": {
-    "outputDirectory": "dist/poseidon-frontend/browser"
-  },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}

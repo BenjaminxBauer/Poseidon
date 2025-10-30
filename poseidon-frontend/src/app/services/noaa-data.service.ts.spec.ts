@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { NoaaData } from './noaa-data';
+import { NoaaDataService } from './noaa-data.service.ts.js';
 
-describe('NoaaData', () => {
-  let service: NoaaData;
+describe('NoaaDataService', () => {
+  let service: NoaaDataService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(NoaaData);
+    service = TestBed.inject(NoaaDataService);
   });
 
   it('should be created', () => {

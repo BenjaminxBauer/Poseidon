@@ -43,10 +43,12 @@ interface TidePrediction {
 })
 export class DashboardComponent implements OnInit {
   windData: any;
-  unit: 'mph' | 'knots' = 'mph'; // default to mph
+  unit: 'mph' | 'knots' = 'mph';
   windForecast: { speed: string; direction: string } | null = null;
   tideLabels: string[] = [];
   tideData: number[] = [];
+  pulseRadius: number = 10;
+  pulseGrowing: boolean = true;
 
   tideChartConfig: ChartConfiguration<'line'> = {
     type: 'line',
@@ -58,8 +60,18 @@ export class DashboardComponent implements OnInit {
           data: this.tideData,
           fill: true,
           borderColor: 'blue',
-          backgroundColor: 'rgba(135,206,250,0.4)', // light blue fill
-          tension: 0.4
+          backgroundColor: 'rgba(135,206,250,0.4)',
+          tension: 0.4,
+          pointRadius: 0
+        },
+        {
+          label: 'Current Tide',
+          data: [],
+          pointBackgroundColor: 'rgba(0, 13, 255, 0.8)',
+          pointBorderColor: 'rgba(255,255,255,0.6)',    
+          pointRadius: 8,
+          pointStyle: 'circle',
+          showLine: false
         }
       ]
     },
@@ -71,6 +83,18 @@ export class DashboardComponent implements OnInit {
           title: {
             display: true,
             text: 'Time'
+          },
+          ticks: {
+            callback: (value: string | number, index: number) => {
+              const label = typeof value === 'string' ? value : this.tideLabels[index];
+              const date = new Date(label);
+              const minutes = date.getMinutes();
+              if (minutes === 0 || minutes === 30) {
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              }
+              return '';
+            },
+            autoSkip: false
           }
         },
         y: {
@@ -96,6 +120,7 @@ export class DashboardComponent implements OnInit {
         };
       }
     });
+
     this.noaaService.getTidePredictions().subscribe(data => {
       console.log('Raw tide data:', data);
       this.tideLabels = data.predictions.map((p: TidePrediction) => p.t);
@@ -104,7 +129,11 @@ export class DashboardComponent implements OnInit {
       console.log('Data:', this.tideData);
       this.tideChartConfig.data.labels = this.tideLabels;
       this.tideChartConfig.data.datasets[0].data = this.tideData;
+
+      this.updateFlashingPoint();
+      setInterval(() => this.updateFlashingPoint(), 500);
     });
+
   }
 
   toggleUnit(): void {
@@ -131,4 +160,34 @@ export class DashboardComponent implements OnInit {
 
     return `${mph} mph`;
   }
+
+  getCurrentTideIndex(): number | null {
+    const now = new Date();
+    const closestIndex = this.tideLabels.findIndex(label => {
+      const labelTime = new Date(label);
+      return Math.abs(labelTime.getTime() - now.getTime()) < 5 * 60 * 1000;
+    });
+    return closestIndex !== -1 ? closestIndex : null;
+  }
+
+  private updateFlashingPoint(): void {
+    const currentIndex = this.getCurrentTideIndex();
+    if (currentIndex !== -1 && currentIndex !== null) {
+      const flashingData = new Array(this.tideLabels.length).fill(null);
+      flashingData[currentIndex] = this.tideData[currentIndex];
+      this.tideChartConfig.data.datasets[1].data = flashingData;
+
+      if (this.pulseGrowing) {
+        this.pulseRadius += 2;
+        if (this.pulseRadius >= 14) this.pulseGrowing = false;
+      } else {
+        this.pulseRadius -= 2;
+        if (this.pulseRadius <= 6) this.pulseGrowing = true;
+      }
+
+      this.tideChartConfig.data.datasets[1].pointRadius = this.pulseRadius;
+      this.tideChartConfig.data.datasets[1].pointBorderWidth = this.pulseRadius > 10 ? 3 : 1;
+    }
+  }
+
 }

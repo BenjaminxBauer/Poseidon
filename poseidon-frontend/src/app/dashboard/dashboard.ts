@@ -69,7 +69,7 @@ export class DashboardComponent implements OnInit {
           data: [],
           pointBackgroundColor: 'rgba(0, 13, 255, 0.8)',
           pointBorderColor: 'rgba(255,255,255,0.6)',    
-          pointRadius: 8,
+          pointRadius: 10,
           pointStyle: 'circle',
           showLine: false
         }
@@ -125,13 +125,13 @@ export class DashboardComponent implements OnInit {
       console.log('Raw tide data:', data);
       this.tideLabels = data.predictions.map((p: TidePrediction) => p.t);
       this.tideData = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
-      console.log('Labels:', this.tideLabels);
-      console.log('Data:', this.tideData);
       this.tideChartConfig.data.labels = this.tideLabels;
       this.tideChartConfig.data.datasets[0].data = this.tideData;
 
       this.updateFlashingPoint();
       setInterval(() => this.updateFlashingPoint(), 500);
+
+      this.getHiloTidePoints();
     });
 
   }
@@ -188,6 +188,29 @@ export class DashboardComponent implements OnInit {
       this.tideChartConfig.data.datasets[1].pointRadius = this.pulseRadius;
       this.tideChartConfig.data.datasets[1].pointBorderWidth = this.pulseRadius > 10 ? 3 : 1;
     }
+  }
+
+  private getHiloTidePoints(): { index: number; value: number }[] {
+    if (!this.tideData.length) return [];
+
+    console.log("DEBUGGING inside getHiloTidePoints");
+
+    for(let i = 0; i < this.tideData.length; i++) {
+      if (this.tideData[i] < this.tideData[i + 1] && this.tideData[i] < this.tideData[i - 1]){
+        console.log("DEBUGGING this should be a low tide point", this.tideData[i]);
+      } else if (this.tideData[i] > this.tideData[i + 1] && this.tideData[i] > this.tideData[i - 1]) {
+        console.log("DEBUGGING this should be a high tide point", this.tideData[i]);
+      }
+    }
+
+    const min = Math.min(...this.tideData);
+    const max = Math.max(...this.tideData);
+
+    console.log("DEBUGGING min: ", min);
+    console.log("DEBUGGING max: ", max);
+
+    return [];
+    
   }
 
 }

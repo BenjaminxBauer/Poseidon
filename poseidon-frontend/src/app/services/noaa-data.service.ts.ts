@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class NoaaDataService {
-  private baseUrl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter';
+  private baseNoaaUrl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter';
   private stationId = '8447180'; // Sandwich, MA
 
   constructor(private http: HttpClient) {}
@@ -17,7 +17,13 @@ export class NoaaDataService {
 }
 
   getTidePredictions(): Observable<any> {
-    const url = `${this.baseUrl}?station=${this.stationId}&product=predictions&date=today&units=english&format=json&time_zone=lst_ldt&datum=MLLW`;
+    const url = `${this.baseNoaaUrl}?station=${this.stationId}&product=predictions&date=today&units=english&format=json&time_zone=lst_ldt&datum=MLLW`;
+    return this.http.get(url);
+  }
+
+  getHiloTidePredictions(): Observable<any> {
+    const url = `${this.baseNoaaUrl}?station=${this.stationId}&date=today&product=predictions&datum=STND&time_zone=lst_ldt&units=english&format=json
+  &interval=hilo`;
     return this.http.get(url);
   }
 }

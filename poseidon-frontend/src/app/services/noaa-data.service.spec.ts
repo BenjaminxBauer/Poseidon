@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { NoaaDataService } from './noaa-data.service.ts.js';
+import { NoaaDataService } from './noaa-data.service.js';
 
 describe('NoaaDataService', () => {
   let service: NoaaDataService;

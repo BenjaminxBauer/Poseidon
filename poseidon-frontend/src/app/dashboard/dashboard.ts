@@ -15,7 +15,7 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import { NoaaDataService } from '../services/noaa-data.service.ts';
+import { NoaaDataService } from '../services/noaa-data.service';
 
 ChartJS.register(
   LineController,

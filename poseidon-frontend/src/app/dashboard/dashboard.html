@@ -1,4 +1,12 @@
 <!-- src/app/components/dashboard/dashboard.component.html -->
+<h2>Tide Predictions</h2>
+<div *ngIf="tideData.length > 0" class="chart-container">
+  <canvas
+    baseChart
+    [data]="tideChartConfig.data"
+    [type]="tideChartConfig.type"
+    [options]="tideChartConfig.options">
+  </canvas>
 
 <h2>Wind Forecast</h2>
 <button (click)="toggleUnit()">Switch to {{ unit === 'mph' ? 'knots' : 'mph' }}</button>
@@ -11,12 +19,3 @@
 <ng-template #noWind>
   <p>No wind forecast available.</p>
 </ng-template>
-
-<h2>Tide Predictions</h2>
-<div *ngIf="tideData.length > 0" class="chart-container">
-  <canvas
-    baseChart
-    [data]="tideChartConfig.data"
-    [type]="tideChartConfig.type"
-    [options]="tideChartConfig.options">
-  </canvas>

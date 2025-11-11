@@ -1,12 +1,39 @@
-.chart-container {
-  width: 100%;
-  max-width: 1000px;
-  height: 500px;
-  margin: auto;
+mat-grid-tile {
+  display: flex;
 }
-canvas {
+
+.tile-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-container {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.chart-container canvas {
+  flex: 1;
   width: 100% !important;
   height: 100% !important;
+  display: block;
+}
+
+.speed-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.speed-row p {
+  margin: 0;
+}
+
+.speed-row button {
+  white-space: nowrap;
 }
 
 @keyframes flash {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
   ChartConfiguration,
-  ChartDataset
+  ChartDataset,
 } from 'chart.js';
 
 @Injectable({
@@ -39,25 +39,32 @@ export class TideChartService {
       },
       options: {
         responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
         scales: {
           x: {
-            type: 'category',
             title: { display: true, text: 'Time' },
-            ticks: {
+            ticks: { 
               callback: (value: string | number, index: number) => {
                 const label = typeof value === 'string' ? value : labels[index];
                 const date = new Date(label);
                 const minutes = date.getMinutes();
-                return (minutes === 0 || minutes === 30)
+                return (minutes === 0)
                   ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                   : '';
               },
               autoSkip: false
-            }
+            },
+            grid: { display: false }
           },
           y: {
-            beginAtZero: true,
-            title: { display: true, text: 'Water Level (ft)' }
+            title: { display: true, text: 'Water Level (ft)' },
+            ticks: { display: false },
+            grid: { display: false },
+            beginAtZero: false
           }
         }
       }
@@ -94,29 +101,25 @@ export class TideChartService {
         responsive: true,
         scales: {
           x: {
-            type: 'category',
-            title: {
-              display: true,
-              text: 'Time'
-            },
-            ticks: {
-              callback: (value: string | number, index: number, ticks) => {
+            title: { display: true, text: 'Time' },
+            ticks: { 
+              callback: (value: string | number, index: number) => {
                 const label = typeof value === 'string' ? value : labels[index];
                 const date = new Date(label);
                 const minutes = date.getMinutes();
-                return (minutes === 0 || minutes === 30)
+                return (minutes === 0)
                   ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                   : '';
               },
               autoSkip: false
-            }
+             },
+            grid: { display: false }
           },
           y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Water Level (ft)'
-            }
+            title: { display: true, text: 'Water Level (ft)' },
+            ticks: { display: false },
+            grid: { display: false },
+            beginAtZero: false
           }
         }
       }
@@ -153,4 +156,5 @@ export class TideChartService {
       flashingDataset.pointBorderWidth = this.pulseRadius > 10 ? 3 : 1;
     }
   }
+
 }

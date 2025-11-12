@@ -39,6 +39,7 @@ export class TideChartService {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             display: false
@@ -99,6 +100,7 @@ export class TideChartService {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
           x: {
             title: { display: true, text: 'Time' },

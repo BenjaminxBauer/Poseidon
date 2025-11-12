@@ -1,43 +1,27 @@
 <!-- src/app/components/dashboard/dashboard.component.html -->
 <h1 style="text-align: center;"> Poseidon Oceanographic Data </h1>
 
-<mat-grid-list cols="2" rowHeight="2:1">
-  <mat-grid-tile>
-    <div class="tile-wrapper">
-      <h2 style="text-align: center;">Tide Chart</h2>
-    </div>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <div class="tile-wrapper">
-      <h2 style="text-align: center;">Wind Forecast</h2>
-    </div>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <div class="tile-wrapper">
-      <div *ngIf="tideData.length > 0" class="chart-container">
-        <canvas
-          baseChart
-          [data]="tideChartConfig.data"
-          [type]="tideChartConfig.type"
-          [options]="tideChartConfig.options">
-        </canvas>
-      </div>
-    </div>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <div class="tile-wrapper">
-      <div *ngIf="windForecast; else noWind">
-        <div class="speed-row">
-          <p>Speed: {{ getWindSpeedDisplay() }}</p>
-          <button (click)="toggleUnit()">Switch to {{ unit === 'mph' ? 'knots' : 'mph' }}</button>
-        </div>
 
-        <p>Direction: {{ windForecast.direction }}</p>
-      </div>
+<h2 style="text-align: center;">Tide Chart</h2>
+<div *ngIf="tideData.length > 0" class="chart-container">
+  <canvas
+    baseChart
+    [data]="tideChartConfig.data"
+    [type]="tideChartConfig.type"
+    [options]="tideChartConfig.options">
+  </canvas>
+</div>
 
-      <ng-template #noWind>
-        <p>No wind forecast available.</p>
-      </ng-template>
-    </div>
-  </mat-grid-tile>
-</mat-grid-list>
+<!-- <h2 style="text-align: center;">Wind Forecast</h2>
+<div *ngIf="windForecast; else noWind">
+  <div class="speed-row">
+    <p>Speed: {{ getWindSpeedDisplay() }}</p>
+    <button (click)="toggleUnit()">Switch to {{ unit === 'mph' ? 'knots' : 'mph' }}</button>
+  </div>
+
+  <p>Direction: {{ windForecast.direction }}</p>
+</div>
+
+<ng-template #noWind>
+  <p>No wind forecast available.</p>
+</ng-template> -->

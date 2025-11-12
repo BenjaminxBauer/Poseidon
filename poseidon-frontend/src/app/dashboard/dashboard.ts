@@ -19,6 +19,7 @@ import { NoaaDataService } from '../services/noaa-data.service';
 import { TideChartService } from '../services/tide-chart.service';
 import { TidePrediction } from '../interface/tide-prediction-interface';
 import { WindService } from '../services/wind-service';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 ChartJS.register(
   LineController,
@@ -37,8 +38,9 @@ ChartJS.register(
   selector: 'app-dashboard',
   standalone: true,
   providers: [provideCharts()],
-  imports: [CommonModule, BaseChartDirective],
-  templateUrl: './dashboard.html'
+  imports: [CommonModule, BaseChartDirective, MatGridListModule],
+  templateUrl: './dashboard.html',
+  styleUrls: ['./dashboard.css']
 })
 
 export class DashboardComponent implements OnInit {
@@ -97,6 +99,4 @@ export class DashboardComponent implements OnInit {
 
     return `${mph} mph`;
   }
-
-
 }

@@ -14,17 +14,18 @@
   display: block;
 }
 
-.speed-row {
+.chart-name-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
 }
 
-.speed-row p {
+.chart-name-row h2 {
   margin: 0;
 }
 
-.speed-row button {
+.chart-name-row button {
   white-space: nowrap;
 }
 

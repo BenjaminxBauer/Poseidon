@@ -1,9 +1,13 @@
 <!-- src/app/components/dashboard/dashboard.component.html -->
 <h1 style="text-align: center;"> Poseidon Oceanographic Data </h1>
 
+<div class="chart-name-row">
+  <h2 style="text-align: center;">{{ chartName }}</h2>
+  <button (click)="toggleChartType()">Switch to {{ chartName === 'Tide Chart' ? 'Wind Chart' : 'Tide Chart' }}</button>
+  <button (click)="toggleChartDate()">Switch to {{ chartDate === 'Today' ? 'Tomorrow' : 'Today' }}</button>
+</div>
 
-<h2 style="text-align: center;">Tide Chart</h2>
-<div *ngIf="tideHeight.length > 0" class="chart-container">
+<div *ngIf="todayTideHeight.length > 0" class="chart-container">
   <canvas
     baseChart
     [data]="tideChartConfig.data"

@@ -16,8 +16,8 @@ export class NoaaDataService {
   return this.http.get(url);
 }
 
-  getTidePredictions(): Observable<any> {
-    const url = `${this.baseUrl}?station=${this.stationId}&product=predictions&date=today&units=english&format=json&time_zone=lst_ldt&datum=MLLW`;
+  getTidePredictions(date: String): Observable<any> {
+    const url = `${this.baseUrl}?station=${this.stationId}&product=predictions&begin_date=${date}&end_date=${date}&units=english&format=json&time_zone=lst_ldt&datum=MLLW`;
     return this.http.get(url);
   }
 }

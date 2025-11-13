@@ -20,6 +20,7 @@ import { TideChartService } from '../services/tide-chart.service';
 import { TidePrediction } from '../interface/tide-prediction-interface';
 import { WindService } from '../services/wind-service';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { P } from '@angular/cdk/keycodes';
 
 ChartJS.register(
   LineController,
@@ -49,8 +50,12 @@ export class DashboardComponent implements OnInit {
   tideChartConfig: any;
   unit: 'mph' | 'knots' = 'mph';
   windForecast: { speed: string; direction: string } | null = null;
-  tideTime: string[] = [];
-  tideHeight: number[] = [];
+  todayTideTime: string[] = [];
+  todayTideHeight: number[] = [];
+  tomorrowTideTime: string[] = [];
+  tomorrowTideHeight: number[] = [];
+  chartName: 'Tide Chart' | 'Wind Chart' = 'Tide Chart'
+  chartDate: 'Today' | 'Tomorrow' = 'Today'
 
   constructor(
     private noaaService: NoaaDataService,
@@ -69,21 +74,64 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    this.noaaService.getTidePredictions().subscribe(data => {
-      this.tideTime = data.predictions.map((p: TidePrediction) => p.t);
-      this.tideHeight = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
-      this.tideChartConfig = this.tideChartService.getChartConfig(this.tideTime, this.tideHeight);
+    const today = this.getDateString("today");
+    this.noaaService.getTidePredictions(today).subscribe(data => {
+      this.todayTideTime = data.predictions.map((p: TidePrediction) => p.t);
+      this.todayTideHeight = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
+      this.tideChartConfig = this.tideChartService.getChartConfig(this.todayTideTime, this.todayTideHeight);
 
-      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.tideTime, this.tideHeight);
-    setInterval(() => {
-      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.tideTime, this.tideHeight);
-    }, 500);
+      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.todayTideTime, this.todayTideHeight);
+      setInterval(() => {
+        this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.todayTideTime, this.todayTideHeight);
+      }, 500);
     });
-
   }
 
   toggleUnit(): void {
     this.unit = this.unit === 'mph' ? 'knots' : 'mph';
+  }
+
+  toggleChartType(): void {
+    this.chartName = this.chartName === 'Tide Chart' ? 'Wind Chart' : 'Tide Chart';
+  }
+
+  toggleChartDate(): void {
+    this.chartDate = this.chartDate === 'Today' ? 'Tomorrow' : 'Today'
+    if (this.chartDate == 'Tomorrow' && this.tomorrowTideTime.length === 0) {
+      this.getTomorrowTideChartData();
+    } else if (this.chartDate == 'Tomorrow' && this.tomorrowTideTime.length > 0) {
+      this.tideChartConfig = this.tideChartService.getChartConfig(this.tomorrowTideTime, this.tomorrowTideHeight);
+    } else if (this.chartDate == 'Today') {
+      this.tideChartConfig = this.tideChartService.getChartConfig(this.todayTideTime, this.todayTideHeight);
+      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.todayTideTime, this.todayTideHeight);
+      setInterval(() => {
+        this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.todayTideTime, this.todayTideHeight);
+      }, 500);
+    }
+  }
+
+  getTomorrowTideChartData(): void {
+    const tomorrow = this.getDateString('tomorrow');
+    this.noaaService.getTidePredictions(tomorrow).subscribe(data => {
+      this.tomorrowTideTime = data.predictions.map((p: TidePrediction) => p.t);
+      this.tomorrowTideHeight = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
+      this.tideChartConfig = this.tideChartService.getChartConfig(this.tomorrowTideTime, this.tomorrowTideHeight);
+    });
+  }
+
+  getDateString(todayOrTomorrow: string): string {
+    const date = new Date();
+    if (todayOrTomorrow == 'tomorrow') {
+      date.setDate(date.getDate() + 1);
+    } else {
+      date.setDate(date.getDate());
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}${month}${day}`;
   }
 
   getWindSpeedDisplay(): string {

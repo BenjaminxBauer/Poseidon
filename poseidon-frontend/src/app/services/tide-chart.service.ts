@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
+  Chart,
   ChartConfiguration,
   ChartDataset,
 } from 'chart.js';
@@ -24,7 +25,8 @@ export class TideChartService {
             borderColor: 'blue',
             backgroundColor: 'rgba(135,206,250,0.4)',
             tension: 0.4,
-            pointRadius: 0
+            pointRadius: 0,
+            pointHitRadius: 10 
           },
           {
             label: 'Current Tide',
@@ -40,9 +42,30 @@ export class TideChartService {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        // interaction: {
+        //   mode: 'nearest',
+        //   intersect: true
+        // },
         plugins: {
           legend: {
             display: false
+          },
+          tooltip: {
+            displayColors: false,
+            callbacks: {
+              title: () => '',
+              label: (context) => {
+                const label = context.label;
+                const date = new Date(label);
+                const time = date.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              });
+              const value = context.formattedValue;
+              return `${time} — ${value} ft`;
+              }
+            }
           }
         },
         scales: {
@@ -72,66 +95,10 @@ export class TideChartService {
     };
   }
 
-  getInitialChartConfig(labels: string[], data: number[]): ChartConfiguration<'line'> {
-    return {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Tide Level (ft)',
-            data,
-            fill: true,
-            borderColor: 'blue',
-            backgroundColor: 'rgba(135,206,250,0.4)',
-            tension: 0.4,
-            pointRadius: 0
-          },
-          {
-            label: 'Current Tide',
-            data: [],
-            pointBackgroundColor: 'rgba(0, 13, 255, 0.8)',
-            pointBorderColor: 'rgba(255,255,255,0.6)',
-            pointRadius: 8,
-            pointStyle: 'circle',
-            showLine: false
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            title: { display: true, text: 'Time' },
-            ticks: { 
-              callback: (value: string | number, index: number) => {
-                const label = typeof value === 'string' ? value : labels[index];
-                const date = new Date(label);
-                const minutes = date.getMinutes();
-                return (minutes === 0)
-                  ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  : '';
-              },
-              autoSkip: false
-             },
-            grid: { display: false }
-          },
-          y: {
-            title: { display: true, text: 'Water Level (ft)' },
-            ticks: { display: false },
-            grid: { display: false },
-            beginAtZero: false
-          }
-        }
-      }
-    };
-  }
-
   updateFlashingPoint(
     config: ChartConfiguration<'line'>,
     labels: string[],
-    data: number[]
+    data: number[],
   ): void {
     const now = new Date();
     const currentIndex = labels.findIndex(label => {

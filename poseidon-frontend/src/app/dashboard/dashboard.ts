@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { provideCharts } from 'ng2-charts';
 import { BaseChartDirective } from 'ng2-charts';
@@ -44,12 +44,13 @@ ChartJS.register(
 })
 
 export class DashboardComponent implements OnInit {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
   windData: any;
   tideChartConfig: any;
   unit: 'mph' | 'knots' = 'mph';
   windForecast: { speed: string; direction: string } | null = null;
-  tideLabels: string[] = [];
-  tideData: number[] = [];
+  tideTime: string[] = [];
+  tideHeight: number[] = [];
 
   constructor(
     private noaaService: NoaaDataService,
@@ -69,13 +70,13 @@ export class DashboardComponent implements OnInit {
     });
 
     this.noaaService.getTidePredictions().subscribe(data => {
-      this.tideLabels = data.predictions.map((p: TidePrediction) => p.t);
-      this.tideData = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
-      this.tideChartConfig = this.tideChartService.getChartConfig(this.tideLabels, this.tideData);
+      this.tideTime = data.predictions.map((p: TidePrediction) => p.t);
+      this.tideHeight = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
+      this.tideChartConfig = this.tideChartService.getChartConfig(this.tideTime, this.tideHeight);
 
-      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.tideLabels, this.tideData);
+      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.tideTime, this.tideHeight);
     setInterval(() => {
-      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.tideLabels, this.tideData);
+      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.tideTime, this.tideHeight);
     }, 500);
     });
 

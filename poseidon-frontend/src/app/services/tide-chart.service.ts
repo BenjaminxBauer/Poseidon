@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import {
-  Chart,
   ChartConfiguration,
   ChartDataset,
 } from 'chart.js';
+import { NoaaDataService } from './noaa-data.service';
+import { map, Observable } from 'rxjs';
+import { TidePrediction } from '../interface/tide-prediction-interface';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +13,21 @@ import {
 export class TideChartService {
   private pulseRadius = 10;
   private pulseGrowing = true;
+
+  constructor(private noaaService: NoaaDataService) {}
+
+  loadChartForStation(stationId: string): Observable<any> {
+    return this.noaaService.getTidePredictions(stationId).pipe(
+      map(data => {
+        const tideTime = data.predictions.map((p: TidePrediction) => p.t);
+        const tideHeight = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
+        const config = this.getChartConfig(tideTime, tideHeight);
+
+        this.updateFlashingPoint(config, tideTime, tideHeight);
+        return config;
+      })
+    );
+  }
 
   getChartConfig(labels: string[], data: number[]): ChartConfiguration<'line'> {
     return {
@@ -42,10 +59,6 @@ export class TideChartService {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        // interaction: {
-        //   mode: 'nearest',
-        //   intersect: true
-        // },
         plugins: {
           legend: {
             display: false

@@ -1,9 +1,18 @@
-<!-- src/app/components/dashboard/dashboard.component.html -->
-<h1 style="text-align: center;"> Poseidon Oceanographic Data </h1>
 
+
+<div class="station-select-container">
+  <h2>Select a weather station to retrieve data from:</h2>
+  <mat-form-field>
+    <mat-select [(value)]="selectedStation" (selectionChange)="loadChart($event.value)">
+      <mat-option *ngFor="let station of stations" [value]="station.value">
+        {{ station.viewValue }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
 
 <h2 style="text-align: center;">Tide Chart</h2>
-<div *ngIf="tideHeight.length > 0" class="chart-container">
+<div *ngIf="tideChartConfig" class="chart-container">
   <canvas
     baseChart
     [data]="tideChartConfig.data"
@@ -11,17 +20,3 @@
     [options]="tideChartConfig.options">
   </canvas>
 </div>
-
-<!-- <h2 style="text-align: center;">Wind Forecast</h2>
-<div *ngIf="windForecast; else noWind">
-  <div class="speed-row">
-    <p>Speed: {{ getWindSpeedDisplay() }}</p>
-    <button (click)="toggleUnit()">Switch to {{ unit === 'mph' ? 'knots' : 'mph' }}</button>
-  </div>
-
-  <p>Direction: {{ windForecast.direction }}</p>
-</div>
-
-<ng-template #noWind>
-  <p>No wind forecast available.</p>
-</ng-template> -->

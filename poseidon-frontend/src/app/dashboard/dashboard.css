@@ -1,3 +1,15 @@
+.station-select-container {
+  display: flex;
+  justify-content: center;   /* centers horizontally */
+  align-items: center;       /* aligns text and select vertically */
+  gap: 1rem;                 /* space between h4 and select */
+  margin-top: 2rem;          /* optional spacing from top */
+}
+
+.station-select-container h2 {
+  margin: 0;                 /* remove default margin so it aligns neatly */
+}
+
 .chart-container {
   flex: 1;
   display: flex;
@@ -12,20 +24,6 @@
   width: 100% !important;
   height: 100% !important;
   display: block;
-}
-
-.speed-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.speed-row p {
-  margin: 0;
-}
-
-.speed-row button {
-  white-space: nowrap;
 }
 
 @keyframes flash {

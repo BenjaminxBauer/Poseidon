@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { provideCharts } from 'ng2-charts';
 import { BaseChartDirective } from 'ng2-charts';
 import {
-  ChartConfiguration,
   Chart as ChartJS,
   LineController,
   LineElement,
@@ -20,7 +19,6 @@ import { TideChartService } from '../services/tide-chart.service';
 import { TidePrediction } from '../interface/tide-prediction-interface';
 import { WindService } from '../services/wind-service';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { P } from '@angular/cdk/keycodes';
 
 ChartJS.register(
   LineController,
@@ -48,7 +46,6 @@ export class DashboardComponent implements OnInit {
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
   windData: any;
   tideChartConfig: any;
-  unit: 'mph' | 'knots' = 'mph';
   windForecast: { speed: string; direction: string } | null = null;
   todayTideTime: string[] = [];
   todayTideHeight: number[] = [];
@@ -75,6 +72,7 @@ export class DashboardComponent implements OnInit {
     });
 
     const today = this.getDateString("today");
+    
     this.noaaService.getTidePredictions(today).subscribe(data => {
       this.todayTideTime = data.predictions.map((p: TidePrediction) => p.t);
       this.todayTideHeight = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
@@ -87,21 +85,18 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  toggleUnit(): void {
-    this.unit = this.unit === 'mph' ? 'knots' : 'mph';
-  }
-
   toggleChartType(): void {
     this.chartName = this.chartName === 'Tide Chart' ? 'Wind Chart' : 'Tide Chart';
   }
 
   toggleChartDate(): void {
     this.chartDate = this.chartDate === 'Today' ? 'Tomorrow' : 'Today'
+
     if (this.chartDate == 'Tomorrow' && this.tomorrowTideTime.length === 0) {
       this.getTomorrowTideChartData();
     } else if (this.chartDate == 'Tomorrow' && this.tomorrowTideTime.length > 0) {
       this.tideChartConfig = this.tideChartService.getChartConfig(this.tomorrowTideTime, this.tomorrowTideHeight);
-    } else if (this.chartDate == 'Today') {
+    } else {
       this.tideChartConfig = this.tideChartService.getChartConfig(this.todayTideTime, this.todayTideHeight);
       this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.todayTideTime, this.todayTideHeight);
       setInterval(() => {
@@ -112,6 +107,7 @@ export class DashboardComponent implements OnInit {
 
   getTomorrowTideChartData(): void {
     const tomorrow = this.getDateString('tomorrow');
+
     this.noaaService.getTidePredictions(tomorrow).subscribe(data => {
       this.tomorrowTideTime = data.predictions.map((p: TidePrediction) => p.t);
       this.tomorrowTideHeight = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
@@ -121,6 +117,7 @@ export class DashboardComponent implements OnInit {
 
   getDateString(todayOrTomorrow: string): string {
     const date = new Date();
+
     if (todayOrTomorrow == 'tomorrow') {
       date.setDate(date.getDate() + 1);
     } else {
@@ -134,18 +131,13 @@ export class DashboardComponent implements OnInit {
     return `${year}${month}${day}`;
   }
 
-  getWindSpeedDisplay(): string {
-    if (!this.windForecast?.speed) return 'N/A';
+  // getWindSpeedDisplay(): string {
+  //   if (!this.windForecast?.speed) return 'N/A';
 
-    const rawSpeed = this.windForecast.speed;
-    const match = rawSpeed.match(/(\d+)/);
-    const mph = match ? +match[1] : 0;
+  //   const rawSpeed = this.windForecast.speed;
+  //   const match = rawSpeed.match(/(\d+)/);
+  //   const mph = match ? +match[1] : 0;
 
-    if (this.unit === 'knots') {
-      const knots = this.windService.convertMphToKnots(mph);
-      return `${knots} knots`;
-    }
-
-    return `${mph} mph`;
-  }
+  //   return `${mph} mph`;
+  // }
 }

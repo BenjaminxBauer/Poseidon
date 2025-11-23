@@ -1,27 +1,54 @@
-<!-- src/app/components/dashboard/dashboard.component.html -->
-<h1 style="text-align: center;"> Poseidon Oceanographic Data </h1>
 
 
-<h2 style="text-align: center;">Tide Chart</h2>
-<div *ngIf="tideHeight.length > 0" class="chart-container">
-  <canvas
-    baseChart
-    [data]="tideChartConfig.data"
-    [type]="tideChartConfig.type"
-    [options]="tideChartConfig.options">
-  </canvas>
+<div class="station-select-container">
+  <h2>Select a weather station to retrieve data from:</h2>
+  <mat-form-field>
+    <mat-select [(value)]="selectedStation" (selectionChange)="loadChart($event.value)">
+      <mat-option *ngFor="let station of stations" [value]="station.value">
+        {{ station.viewValue }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>
 
-<!-- <h2 style="text-align: center;">Wind Forecast</h2>
-<div *ngIf="windForecast; else noWind">
-  <div class="speed-row">
-    <p>Speed: {{ getWindSpeedDisplay() }}</p>
-    <button (click)="toggleUnit()">Switch to {{ unit === 'mph' ? 'knots' : 'mph' }}</button>
-  </div>
+<mat-grid-list cols="4">
+  <mat-grid-tile [colspan]="4" [rowspan]="2">
+    <mat-grid-tile-header class="custom-header">Tide Chart</mat-grid-tile-header>  
+    <div *ngIf="tideChartConfig" class="chart-container">
+        <canvas
+          baseChart
+          [data]="tideChartConfig.data"
+          [type]="tideChartConfig.type"
+          [options]="tideChartConfig.options">
+        </canvas>
+    </div>
+  </mat-grid-tile>
 
-  <p>Direction: {{ windForecast.direction }}</p>
-</div>
+  <mat-grid-tile style="background: lightblue;" [colspan]="3" [rowspan]="1">1</mat-grid-tile>
 
-<ng-template #noWind>
-  <p>No wind forecast available.</p>
-</ng-template> -->
+  <mat-grid-tile style="background: lightgreen;" [colspan]="1" [rowspan]="2">
+    <mat-grid-tile-header class="custom-header">Hourly Weather</mat-grid-tile-header> 
+    <div *ngIf="hourlyWeather.length > 0">
+      <table class="weather-table">
+        <thead>
+          <tr>
+            <th>Hour</th>
+            <th>Wind Speed</th>
+            <th>Wind Direction</th>
+          </tr>
+        </thead>
+         <tbody>
+          <tr *ngFor="let item of hourlyWeather | slice:0:24">
+            <td>{{ item.hour }}</td>
+            <td>{{ item.windSpeed }}</td>
+            <td>{{ item.windDirection }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </mat-grid-tile>
+
+  <mat-grid-tile style="background: lightpink;" [colspan]="1" [rowspan]="1">3</mat-grid-tile>
+
+  <mat-grid-tile style="background: #DDBDF1;"[colspan]="2" [rowspan]="1">4</mat-grid-tile>
+</mat-grid-list>

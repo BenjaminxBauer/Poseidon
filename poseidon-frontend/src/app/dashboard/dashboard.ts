@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { provideCharts } from 'ng2-charts';
 import { BaseChartDirective } from 'ng2-charts';
 import {
-  ChartConfiguration,
   Chart as ChartJS,
   LineController,
   LineElement,
@@ -15,11 +14,17 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import { NoaaDataService } from '../services/noaa-data.service';
 import { TideChartService } from '../services/tide-chart.service';
-import { TidePrediction } from '../interface/tide-prediction-interface';
-import { WindService } from '../services/wind-service';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { Station } from '../interface/station-interface';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { NoaaDataService } from '../services/noaa-data.service';
+import { HourlyWeather } from '../interface/hourly-weather-interface';
+import { first } from 'rxjs';
+import { WeatherServiceResponse } from '../interface/weather-service-response-interface';
+import { DataFormattingService } from '../services/data-formatting.service';
 
 ChartJS.register(
   LineController,
@@ -33,71 +38,64 @@ ChartJS.register(
   Filler
 );
 
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   providers: [provideCharts()],
-  imports: [CommonModule, BaseChartDirective, MatGridListModule],
+  imports: [CommonModule, BaseChartDirective, MatGridListModule, MatSelectModule, MatInputModule, FormsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
 
 export class DashboardComponent implements OnInit {
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
-  windData: any;
   tideChartConfig: any;
-  unit: 'mph' | 'knots' = 'mph';
-  windForecast: { speed: string; direction: string } | null = null;
-  tideTime: string[] = [];
-  tideHeight: number[] = [];
+  hourlyWeather: HourlyWeather[] = []
+  stations: Station[] = [
+    {value: '8447180', viewValue: 'Sandwich'},
+    {value: '8447930', viewValue: 'Woods Hole'},
+    {value: '8447435', viewValue: 'Chatham'},
+    {value: '8443970', viewValue: 'Boston'}
+  ];
+  selectedStation = this.stations[0].value;
 
   constructor(
-    private noaaService: NoaaDataService,
     private tideChartService: TideChartService,
-    private windService: WindService
+    private noaaService: NoaaDataService,
+    private dataFormattingService: DataFormattingService,
   ) {}
 
   ngOnInit(): void {
+    this.tideChartService.loadChartForStation(this.selectedStation).subscribe(config => {
+      this.tideChartConfig = config;
+    });
+
     this.noaaService.getHourlyForecast().subscribe(data => {
-      const firstPeriod = data?.properties?.periods?.[0];
-      if (firstPeriod) {
-        this.windForecast = {
-          speed: firstPeriod.windSpeed,
-          direction: firstPeriod.windDirection
-        };
-      }
+      const periods: WeatherServiceResponse[] = data?.properties?.periods || [];
+
+      periods.forEach(period => {
+        const hourFormat = this.dataFormattingService.convertToReadableHour(period.startTime);
+        const dewPointInFahrenheit = this.dataFormattingService.convertCelsiusToFahrenheit(period.dewpoint.value);
+
+        this.hourlyWeather.push({ 
+          hour: hourFormat, 
+          windSpeed: period.windSpeed, 
+          windDirection: period.windDirection,
+          dewPoint: dewPointInFahrenheit,
+          temperature: period.temperature, 
+          shortForecast: period.shortForecast, 
+          probabilityOfPrecipitation: period.probabilityOfPrecipitation.value
+        });
+      });
+
+      console.log("DEBUGGING hourlyWeather: ", this.hourlyWeather);
+    })
+  }
+
+  loadChart(stationId: string): void {
+    this.tideChartService.loadChartForStation(stationId).subscribe(config => {
+      this.tideChartConfig = config;
     });
-
-    this.noaaService.getTidePredictions().subscribe(data => {
-      this.tideTime = data.predictions.map((p: TidePrediction) => p.t);
-      this.tideHeight = data.predictions.map((p: TidePrediction) => parseFloat(p.v));
-      this.tideChartConfig = this.tideChartService.getChartConfig(this.tideTime, this.tideHeight);
-
-      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.tideTime, this.tideHeight);
-    setInterval(() => {
-      this.tideChartService.updateFlashingPoint(this.tideChartConfig, this.tideTime, this.tideHeight);
-    }, 500);
-    });
-
   }
 
-  toggleUnit(): void {
-    this.unit = this.unit === 'mph' ? 'knots' : 'mph';
-  }
-
-  getWindSpeedDisplay(): string {
-    if (!this.windForecast?.speed) return 'N/A';
-
-    const rawSpeed = this.windForecast.speed;
-    const match = rawSpeed.match(/(\d+)/);
-    const mph = match ? +match[1] : 0;
-
-    if (this.unit === 'knots') {
-      const knots = this.windService.convertMphToKnots(mph);
-      return `${knots} knots`;
-    }
-
-    return `${mph} mph`;
-  }
 }

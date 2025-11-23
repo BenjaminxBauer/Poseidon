@@ -1,3 +1,15 @@
+.station-select-container {
+  display: flex;
+  justify-content: center;   /* centers horizontally */
+  align-items: center;       /* aligns text and select vertically */
+  gap: 1rem;                 /* space between h4 and select */
+  margin-top: 2rem;          /* optional spacing from top */
+}
+
+.station-select-container h2 {
+  margin: 0;                 /* remove default margin so it aligns neatly */
+}
+
 .chart-container {
   flex: 1;
   display: flex;
@@ -14,20 +26,6 @@
   display: block;
 }
 
-.speed-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.speed-row p {
-  margin: 0;
-}
-
-.speed-row button {
-  white-space: nowrap;
-}
-
 @keyframes flash {
   0% { opacity: 1; }
   50% { opacity: 0.2; }
@@ -36,4 +34,31 @@
 
 canvas .flashing-point {
   animation: flash 1s infinite;
+}
+
+mat-grid-tile-header.custom-header {
+  background: none;
+  color: #000;
+  font-size: 1.2rem;
+
+  display: flex;              /* make it a flex container */
+  justify-content: center;    /* center horizontally */
+  align-items: center;        /* center vertically */
+
+  font-weight: bold;       /* makes text thicker */
+  letter-spacing: 2px;     /* adds spacing between letters */
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3); /* subtle shadow */
+  font-size: 1.5rem;       /* larger text */
+  line-height: 2rem;       /* balanced spacing */
+  text-decoration: underline; /* adds underline */
+}
+
+.weather-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.weather-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid #ccc;
 }

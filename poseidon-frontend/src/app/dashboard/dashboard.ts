@@ -20,6 +20,11 @@ import { Station } from '../interface/station-interface';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { NoaaDataService } from '../services/noaa-data.service';
+import { HourlyWeather } from '../interface/hourly-weather-interface';
+import { first } from 'rxjs';
+import { WeatherServiceResponse } from '../interface/weather-service-response-interface';
+import { DataFormattingService } from '../services/data-formatting.service';
 
 ChartJS.register(
   LineController,
@@ -45,8 +50,7 @@ ChartJS.register(
 export class DashboardComponent implements OnInit {
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
   tideChartConfig: any;
-  tideTime: string[] = [];
-  tideHeight: number[] = [];
+  hourlyWeather: HourlyWeather[] = []
   stations: Station[] = [
     {value: '8447180', viewValue: 'Sandwich'},
     {value: '8447930', viewValue: 'Woods Hole'},
@@ -57,12 +61,35 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private tideChartService: TideChartService,
+    private noaaService: NoaaDataService,
+    private dataFormattingService: DataFormattingService,
   ) {}
 
   ngOnInit(): void {
     this.tideChartService.loadChartForStation(this.selectedStation).subscribe(config => {
       this.tideChartConfig = config;
     });
+
+    this.noaaService.getHourlyForecast().subscribe(data => {
+      const periods: WeatherServiceResponse[] = data?.properties?.periods || [];
+
+      periods.forEach(period => {
+        const hourFormat = this.dataFormattingService.convertToReadableHour(period.startTime);
+        const dewPointInFahrenheit = this.dataFormattingService.convertCelsiusToFahrenheit(period.dewpoint.value);
+
+        this.hourlyWeather.push({ 
+          hour: hourFormat, 
+          windSpeed: period.windSpeed, 
+          windDirection: period.windDirection,
+          dewPoint: dewPointInFahrenheit,
+          temperature: period.temperature, 
+          shortForecast: period.shortForecast, 
+          probabilityOfPrecipitation: period.probabilityOfPrecipitation.value
+        });
+      });
+
+      console.log("DEBUGGING hourlyWeather: ", this.hourlyWeather);
+    })
   }
 
   loadChart(stationId: string): void {

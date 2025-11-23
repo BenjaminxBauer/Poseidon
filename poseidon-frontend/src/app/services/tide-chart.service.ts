@@ -16,7 +16,7 @@ export class TideChartService {
 
   constructor(private noaaService: NoaaDataService) {}
 
-  loadChartForStation(stationId: string): Observable<any> {
+  public loadChartForStation(stationId: string): Observable<any> {
     return this.noaaService.getTidePredictions(stationId).pipe(
       map(data => {
         const tideTime = data.predictions.map((p: TidePrediction) => p.t);
@@ -29,7 +29,7 @@ export class TideChartService {
     );
   }
 
-  getChartConfig(labels: string[], data: number[]): ChartConfiguration<'line'> {
+  private getChartConfig(labels: string[], data: number[]): ChartConfiguration<'line'> {
     return {
       type: 'line',
       data: {
@@ -108,7 +108,7 @@ export class TideChartService {
     };
   }
 
-  updateFlashingPoint(
+  public updateFlashingPoint(
     config: ChartConfiguration<'line'>,
     labels: string[],
     data: number[],

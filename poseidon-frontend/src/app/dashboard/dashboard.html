@@ -11,12 +11,44 @@
   </mat-form-field>
 </div>
 
-<h2 style="text-align: center;">Tide Chart</h2>
-<div *ngIf="tideChartConfig" class="chart-container">
-  <canvas
-    baseChart
-    [data]="tideChartConfig.data"
-    [type]="tideChartConfig.type"
-    [options]="tideChartConfig.options">
-  </canvas>
-</div>
+<mat-grid-list cols="4">
+  <mat-grid-tile [colspan]="4" [rowspan]="2">
+    <mat-grid-tile-header class="custom-header">Tide Chart</mat-grid-tile-header>  
+    <div *ngIf="tideChartConfig" class="chart-container">
+        <canvas
+          baseChart
+          [data]="tideChartConfig.data"
+          [type]="tideChartConfig.type"
+          [options]="tideChartConfig.options">
+        </canvas>
+    </div>
+  </mat-grid-tile>
+
+  <mat-grid-tile style="background: lightblue;" [colspan]="3" [rowspan]="1">1</mat-grid-tile>
+
+  <mat-grid-tile style="background: lightgreen;" [colspan]="1" [rowspan]="2">
+    <mat-grid-tile-header class="custom-header">Hourly Weather</mat-grid-tile-header> 
+    <div *ngIf="hourlyWeather.length > 0">
+      <table class="weather-table">
+        <thead>
+          <tr>
+            <th>Hour</th>
+            <th>Wind Speed</th>
+            <th>Wind Direction</th>
+          </tr>
+        </thead>
+         <tbody>
+          <tr *ngFor="let item of hourlyWeather | slice:0:24">
+            <td>{{ item.hour }}</td>
+            <td>{{ item.windSpeed }}</td>
+            <td>{{ item.windDirection }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </mat-grid-tile>
+
+  <mat-grid-tile style="background: lightpink;" [colspan]="1" [rowspan]="1">3</mat-grid-tile>
+
+  <mat-grid-tile style="background: #DDBDF1;"[colspan]="2" [rowspan]="1">4</mat-grid-tile>
+</mat-grid-list>

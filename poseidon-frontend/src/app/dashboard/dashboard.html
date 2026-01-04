@@ -27,14 +27,13 @@
   <mat-grid-tile style="background: lightblue;" [colspan]="3" [rowspan]="1">1</mat-grid-tile>
 
   <mat-grid-tile style="background: lightgreen;" [colspan]="1" [rowspan]="2">
-    <mat-grid-tile-header class="custom-header">Hourly Weather</mat-grid-tile-header> 
     <div *ngIf="hourlyWeather.length > 0">
       <table class="weather-table">
         <thead>
           <tr>
-            <th>Hour</th>
-            <th>Wind Speed</th>
-            <th>Wind Direction</th>
+            <th> Hour </th>
+            <th> Speed </th>
+            <th> Direction </th>
           </tr>
         </thead>
          <tbody>

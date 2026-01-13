@@ -1,56 +1,69 @@
+/* --- Station Selector --- */
 .station-select-container {
   display: flex;
-  justify-content: center;   /* centers horizontally */
-  align-items: center;       /* aligns text and select vertically */
-  gap: 1rem;                 /* space between h4 and select */
-  margin-top: 2rem;          /* optional spacing from top */
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
 }
 
 .station-select-container h2 {
-  margin: 0;                 /* remove default margin so it aligns neatly */
+  margin: 0;
 }
 
+@media (max-width: 600px) {
+  .station-select-container {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* --- Responsive Dashboard Grid --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+.grid-item {
+  background: #eee;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+/* Full-width item (chart) */
+.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Colors for your demo tiles */
+.blue { background: lightblue; }
+.green { background: lightgreen; }
+.pink { background: lightpink; }
+.purple { background: #DDBDF1; }
+
+/* --- Chart Container --- */
 .chart-container {
-  flex: 1;
+  height: 60vh;
   display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-  height: 75vh;
-  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .chart-container {
+    height: 40vh;
+  }
 }
 
 .chart-container canvas {
-  flex: 1;
   width: 100% !important;
   height: 100% !important;
-  display: block;
 }
 
-@keyframes flash {
-  0% { opacity: 1; }
-  50% { opacity: 0.2; }
-  100% { opacity: 1; }
-}
-
-canvas .flashing-point {
-  animation: flash 1s infinite;
-}
-
-mat-grid-tile-header.custom-header {
-  background: none;
-  color: #000;
-  font-size: 1.2rem;
-
-  display: flex;              /* make it a flex container */
-  justify-content: center;    /* center horizontally */
-  align-items: center;        /* center vertically */
-
-  font-weight: bold;       /* makes text thicker */
-  letter-spacing: 2px;     /* adds spacing between letters */
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3); /* subtle shadow */
-  font-size: 1.5rem;       /* larger text */
-  line-height: 2rem;       /* balanced spacing */
-  text-decoration: underline; /* adds underline */
+/* --- Weather Table --- */
+.weather-wrapper {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .weather-table {
@@ -58,7 +71,16 @@ mat-grid-tile-header.custom-header {
   border-collapse: collapse;
 }
 
+.weather-table th,
 .weather-table td {
-  padding: 4px 8px;
+  padding: 6px;
   border-bottom: 1px solid #ccc;
+}
+
+/* Section header */
+.section-header {
+  text-align: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  text-decoration: underline;
 }

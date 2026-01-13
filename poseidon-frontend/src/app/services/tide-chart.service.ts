@@ -89,9 +89,18 @@ export class TideChartService {
                 const label = typeof value === 'string' ? value : labels[index];
                 const date = new Date(label);
                 const minutes = date.getMinutes();
-                return (minutes === 0)
-                  ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  : '';
+
+                if (minutes !== 0) return '';
+
+                // MOBILE: show every 3rd hour label
+                if (window.innerWidth < 600) {
+                  return index % 3 === 0
+                    ? date.toLocaleTimeString([], { hour: '2-digit' })
+                    : '';
+                }
+
+                // DESKTOP: show every hour label
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
               },
               autoSkip: false
             },

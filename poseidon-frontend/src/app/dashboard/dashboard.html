@@ -26,7 +26,40 @@
     </div>
   </div>
 
-  <div class="grid-item blue">1</div>
+  <div class="grid-item blue">
+    <h2 class="section-header">Daily High Tides</h2>
+    <div *ngIf="dailyHighTides">
+      <table class="weather-table">
+        <thead>
+          <th>Time</th>
+          <th>Tide Height</th>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item  of dailyHighTides">
+            <td>{{ item.t }}</td>
+            <td>{{ item.v }}ft</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-header">Daily Low Tides</h2>
+    <div *ngIf="dailyLowTides">
+       <table class="weather-table">
+        <thead>
+          <th>Time</th>
+          <th>Tide Height</th>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item  of dailyLowTides">
+            <td>{{ item.t }}</td>
+            <td>{{ item.v }}ft</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 
   <div class="grid-item green">
     <div *ngIf="hourlyWeather.length > 0" class="weather-wrapper">

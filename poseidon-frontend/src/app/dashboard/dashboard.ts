@@ -25,6 +25,7 @@ import { HourlyWeather } from '../interface/hourly-weather-interface';
 import { first } from 'rxjs';
 import { WeatherServiceResponse } from '../interface/weather-service-response-interface';
 import { DataFormattingService } from '../services/data-formatting.service';
+import { TidePrediction } from '../interface/tide-prediction-interface';
 
 ChartJS.register(
   LineController,
@@ -58,6 +59,9 @@ export class DashboardComponent implements OnInit {
     {value: '8443970', viewValue: 'Boston'}
   ];
   selectedStation = this.stations[0].value;
+  dailyHighTides: TidePrediction[] = [];
+  dailyLowTides: TidePrediction[] = [];
+
 
   constructor(
     private tideChartService: TideChartService,
@@ -68,6 +72,8 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.tideChartService.loadChartForStation(this.selectedStation).subscribe(config => {
       this.tideChartConfig = config;
+      this.setDailyTideExtremes();
+      console.log("DEBUGGING daily extremes ", this.dailyHighTides[0])
     });
 
     this.noaaService.getHourlyForecast().subscribe(data => {
@@ -88,14 +94,86 @@ export class DashboardComponent implements OnInit {
         });
       });
 
-      console.log("DEBUGGING hourlyWeather: ", this.hourlyWeather);
+      // console.log("DEBUGGING hourlyWeather: ", this.hourlyWeather);
     })
   }
 
   loadChart(stationId: string): void {
     this.tideChartService.loadChartForStation(stationId).subscribe(config => {
       this.tideChartConfig = config;
+      this.setDailyTideExtremes();
     });
+  }
+
+  setDailyTideExtremes(): void {
+    this.dailyHighTides = [ 
+      { t: "", v: "-9999" },
+      { t: "", v: "-9999" }, 
+    ];
+
+    this.dailyLowTides = [
+      { t: "", v: "9999" },
+      { t: "", v: "9999" },
+    ]; 
+    
+    const labels = this.tideChartConfig.data.labels as string [];
+    const values = this.tideChartConfig.data.datasets[0].data as string[];
+
+    for (let i = 0; i < values.length; i++) {
+      const time = this.formatTime(labels[i]);
+      const value = values[i];
+      
+      if (value > this.dailyHighTides[0].v) {
+        this.dailyHighTides[0] = { t: time, v: value };
+      } 
+        
+      if (value < this.dailyLowTides[0].v) {
+        this.dailyLowTides[0] = { t: time, v: value };
+      } 
+    }
+  
+    for (let i = 0; i < values.length; i++) {
+      const time = this.formatTime(labels[i]);
+      const value = values[i];
+      
+      if (value > this.dailyHighTides[1].v && !this.withinSixHours(this.dailyHighTides[0].t, time)) {
+        this.dailyHighTides[1] = { t: time, v: value };
+      }
+
+      if (value < this.dailyLowTides[1].v && !this.withinSixHours(this.dailyLowTides[0].t, time)) {
+        this.dailyLowTides[1] = { t: time, v: value };
+      }
+    }
+
+  }
+
+  formatTime(label: string): string {
+    const date = new Date(label);
+    const time = date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    return time;
+  }
+
+  withinSixHours(timeString1: string, timeString2: string): boolean {
+    const minutesSinceMidnight1 = this.parseTime12hour(timeString1);
+    const minutesSinceMidnight2 = this.parseTime12hour(timeString2);
+
+    return Math.abs(minutesSinceMidnight1 - minutesSinceMidnight2) <= 360;
+  }
+
+  parseTime12hour(str: string): number {
+    const [time, period] = str.split(" "); 
+    const [rawH, rawM] = time.split(":").map(Number); 
+    let hours = rawH % 12; 
+
+    if (period === "PM") {
+      hours += 12; 
+    }
+
+    return hours * 60 + rawM;
   }
 
 }
